@@ -10,6 +10,7 @@ players race to reach the other side
  * TODO:
  * round should reset when a new client joins (myWords = [])
  * potentially limit to 4 guests, or adjust colors and canvas size accordingly
+ * submit on press Enter key
  * styling
  */
 

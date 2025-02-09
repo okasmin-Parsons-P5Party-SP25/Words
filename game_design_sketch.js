@@ -161,8 +161,6 @@ function draw() {
 	textSize(40);
 	text(shared.roundLetter, outerWidth / 2, game_y + game_header_height/2);
 
-    // fill('red')
-    // rect(outerWidth/2, game_y,10,10)
 
 	drawPlayers();
 	if (me.myWords.length > 0) {

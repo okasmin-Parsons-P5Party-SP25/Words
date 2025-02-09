@@ -42,19 +42,28 @@ let allLetters = [
 let width = 400;
 let height = 400;
 
-let startY = 80;
+let border_side = 30
+let top_height = 50
+let bottom_height = 120
+let inset_size = 20
+let outerWidth = width + border_side *2 + inset_size*2;
+let outerHeight = height+top_height+bottom_height+ inset_size*2;
+
+let game_header_height = 80 
+let game_y = top_height+inset_size
+
+let startY = game_y + game_header_height + 20;
 let spaceSize = 20;
 let r = 20;
-let startX = 0 + r / 2;
+let startX = 30 + inset_size + r / 2;
 
 let palette = [
-	[3, 135, 62], // green
-	[255, 183, 0], // dark yellow
-	[255, 115, 0], // orange
-	[8, 79, 255], // blue
-	[255, 255, 255], // white
+	"#E6B101" , //yellow
+    "#FF477B", //pink
+    "#C2D968", //green
+    "#FF4E20" //red
 ];
-
+let kodeMonoFont;
 
 
 function preload() {
@@ -68,13 +77,15 @@ function preload() {
 		position: { x: startX },
 		myWords: [],
 	});
+	kodeMonoFont = loadFont('./assets/Kodemono.ttf');
 
 	
 }
 
 function setup() {
-	createCanvas(width, height);
+	createCanvas(outerWidth, outerHeight);
 	wordInput = createInput();
+	wordInput.position(outerWidth/2, outerHeight - bottom_height/2 );
 	createButton("submit").mousePressed(onSubmit);
 	createButton("reset").mousePressed(onReset);
 	ellipseMode(CENTER);
@@ -83,14 +94,20 @@ function setup() {
 	shared.roundLetter = random(allLetters);
 	partyToggleInfo(true);
 	noStroke();
+
+	create_UI()
 }
 
-function draw() {
-	background(color([255, 204, 204])); //pink
-	textFont("Courier New");
-	textSize(40);
 
-	text(shared.roundLetter, width / 2, 40);
+
+function draw() {
+	resetBackground()
+    noStroke()
+    fill('white')
+    textSize(8);
+    text("type as many words starting with...", outerWidth / 2, game_y + game_header_height/2 - 23);
+	textSize(40);
+	text(shared.roundLetter, outerWidth / 2, game_y + game_header_height/2);
 
 	drawBoard();
 }
@@ -102,7 +119,8 @@ function drawBoard() {
 		if (guest === me) {
 			y = startY;
 		} else {
-			y = (2 + guestIdx) * startY;
+			y = (2 + guestIdx) * spaceSize *2 + startY;
+			
 			guestIdx++;
 		}
 
@@ -116,6 +134,8 @@ function drawBoard() {
 function drawPlayer(x, y) {
 	push();
 	fill(color(palette[0])); //update this
+	stroke(color(palette[0]))
+    line(me.position.x, game_y+game_header_height, me.position.x, game_y+height)
 	ellipse(x, y, r, r);
 	pop();
 }
@@ -127,6 +147,7 @@ function onSubmit() {
 		return;
 	} else {
 		me.myWords.push(word);
+		wordInput.value("")
 
 		const newX = me.position.x + word.length * spaceSize;
 
@@ -175,17 +196,19 @@ function drawWordRectangles(words, y, isMe) {
 	for (let i = 0; i < letters.length; i++) {
 		const x = i * spaceSize + startX;
 		push();
-		fill("white");
-		stroke("black");
+		noFill()
+		stroke("white");
+		rectMode(CENTER)
 		rect(x, y, r, r);
 		pop();
 
 		// fill each rectangle with letter if is me
 		if (isMe) {
 			push();
-			textAlign(CENTER);
+			textAlign(CENTER, CENTER);
 			textSize(16);
-			text(letters[i], x, startY + 4);
+			textSize(round(r*.7));
+			text(letters[i], x, startY);
 			pop();
 		}
 	}
@@ -208,6 +231,49 @@ function onReset() {
 	drawBoard();
 }
 
+function resetBackground(){
+    fill('black')
+    rect(border_side+ inset_size, top_height + inset_size, width, height)
+
+    //ingame UI
+    noFill()
+    stroke("white")
+    rect(border_side + inset_size, game_y, width, game_header_height)
+
+}
+
+function create_UI(){
+    rectMode(CORNER)
+    
+    textSize(20)
+    textFont(kodeMonoFont)
+    textAlign(CENTER, CENTER);
+
+    //1. CREATE THE GAME CONSOLE SHAPE
+    resetBackground() //game area
+    stroke('black')
+    noFill()
+    rect(0,0,outerWidth, top_height)
+    rect(0,outerHeight-bottom_height,outerWidth, bottom_height)
+    //inset lines
+    line(0,outerHeight-bottom_height, border_side+ inset_size,outerHeight-bottom_height - inset_size)  //bottom left
+    line(outerWidth,outerHeight-bottom_height, outerWidth-border_side-inset_size,outerHeight-bottom_height - inset_size) //bottom right
+    line(0,top_height, border_side+ inset_size,top_height+ inset_size) //top left
+    line(outerWidth,top_height, outerWidth-border_side-inset_size,top_height+ inset_size) //top right
+
+
+    //2. ADD THE TOP TEXT
+    noStroke()
+    fill("black")
+    text("WORDS",outerWidth/2,top_height/2)
+
+
+    //3. ADD THE BOTTOM INPUTS
+    textSize(10)
+    text("Enter Your Words Above ^",outerWidth/2,outerHeight - bottom_height/2 + 30)
+
+    
+}
 
 function show_opening_screen(){
 

@@ -42,15 +42,17 @@ let allLetters = [
 let width = 400;
 let height = 400;
 
-let border_side = 30;
-let top_height = 50;
-let bottom_height = 120;
-let inset_size = 20;
-let outerWidth = width + border_side * 2 + inset_size * 2;
-let outerHeight = height + top_height + bottom_height + inset_size * 2;
+let border_side = 30
+let top_height = 50
+let bottom_height = 120
+let inset_size = 20
+let outerWidth = width + border_side *2 + inset_size*2;
+let outerHeight = height+top_height+bottom_height+ inset_size*2;
 
-let game_header_height = 80;
-let game_y = top_height + inset_size;
+let game_header_height = 80 
+let game_y = top_height+inset_size
+
+let win_x = width + border_side + inset_size
 
 let startY = game_y + game_header_height + 20;
 let spaceSize = 20;
@@ -58,38 +60,36 @@ let r = 20;
 let startX = 30 + inset_size + r / 2;
 
 let palette = [
-	"#E6B101", //yellow
-	"#FF477B", //pink
-	"#C2D968", //green
-	"#FF4E20", //red
+	"#E6B101" , //yellow
+    "#FF477B", //pink
+    "#C2D968", //green
+    "#FF4E20" //red
 ];
 let kodeMonoFont;
+
 
 function preload() {
 	partyConnect("wss://demoserver.p5party.org", "okasmin_words");
 
 	shared = partyLoadShared("shared", {
 		roundLetter: "",
-		winner: {
-			name: "",
-			words: [],
-		},
 	});
 	guests = partyLoadGuestShareds();
 	me = partyLoadMyShared({
 		position: { x: startX },
 		myWords: [],
-		name: "",
 	});
-	kodeMonoFont = loadFont("./assets/Kodemono.ttf");
+	kodeMonoFont = loadFont('./assets/Kodemono.ttf');
+
+	
 }
 
 function setup() {
 	createCanvas(outerWidth, outerHeight);
 	wordInput = createInput();
-	wordInput.position(outerWidth / 2, outerHeight - bottom_height / 2);
-	createButton("submit").mousePressed(onSubmit);
-	createButton("reset").mousePressed(onReset);
+	wordInput.position(outerWidth/2, outerHeight - bottom_height/2 );
+	// createButton("submit").mousePressed(onSubmit).position(10,top_height/2);
+	createButton("reset").mousePressed(onReset).position(10,top_height/2);
 	ellipseMode(CENTER);
 	rectMode(CENTER);
 	textAlign(CENTER);
@@ -97,28 +97,33 @@ function setup() {
 	partyToggleInfo(true);
 	noStroke();
 
-<<<<<<< HEAD
 	create_UI()
 	console.log(guests)
-=======
-	create_UI();
->>>>>>> 76f264a46fcc2c9653bbc53a5d09cf293b596b59
 }
 
+
+
 function draw() {
-	resetBackground();
-	noStroke();
-	fill("white");
-	textSize(8);
-	text(
-		"type as many words starting with...",
-		outerWidth / 2,
-		game_y + game_header_height / 2 - 23
-	);
+	resetBackground()
+    noStroke()
+    fill('white')
+    textSize(8);
+    text("type as many words starting with...", outerWidth / 2, game_y + game_header_height/2 - 23);
 	textSize(40);
-	text(shared.roundLetter, outerWidth / 2, game_y + game_header_height / 2);
+	text(shared.roundLetter, outerWidth / 2, game_y + game_header_height/2);
 
 	drawBoard();
+	
+	if(me.myWords.length < 2){
+		showTooltip()
+	}
+	
+}
+
+function showTooltip(){
+	fill('#FF477B')
+	textSize(8)
+	text('Press Enter to Submit ->',outerWidth/2 + 60,outerHeight - bottom_height/2)
 }
 
 function drawBoard() {
@@ -128,13 +133,8 @@ function drawBoard() {
 		if (guest === me) {
 			y = startY;
 		} else {
-<<<<<<< HEAD
 			y = (1 + guestIdx) * spaceSize *2 + startY;
 			
-=======
-			y = (2 + guestIdx) * spaceSize * 2 + startY;
-
->>>>>>> 76f264a46fcc2c9653bbc53a5d09cf293b596b59
 			guestIdx++;
 		}
 
@@ -143,18 +143,16 @@ function drawBoard() {
 		const isMe = guest === me;
 		drawWordRectangles(guest.myWords, y, isMe);
 	}
+
+	
+	
 }
 
 function drawPlayer(x, y) {
 	push();
 	fill(color(palette[0])); //update this
-	stroke(color(palette[0]));
-	line(
-		me.position.x,
-		game_y + game_header_height,
-		me.position.x,
-		game_y + height
-	);
+	stroke(color(palette[0]))
+    line(me.position.x, game_y+game_header_height, me.position.x, game_y+height)
 	ellipse(x, y, r, r);
 	pop();
 }
@@ -166,15 +164,13 @@ function onSubmit() {
 		return;
 	} else {
 		me.myWords.push(word);
-		wordInput.value("");
+		wordInput.value("")
 
 		const newX = me.position.x + word.length * spaceSize;
 
 		if (newX >= 390) {
-			me.position.x = 390;
+			me.position.x = win_x - r/2;
 			console.log("you win!");
-			// shared.winner.name = me.name
-			// shared.winner.words = me.myWords
 		} else {
 			me.position.x = newX;
 		}
@@ -217,9 +213,9 @@ function drawWordRectangles(words, y, isMe) {
 	for (let i = 0; i < letters.length; i++) {
 		const x = i * spaceSize + startX;
 		push();
-		noFill();
+		noFill()
 		stroke("white");
-		rectMode(CENTER);
+		rectMode(CENTER)
 		rect(x, y, r, r);
 		pop();
 
@@ -228,7 +224,7 @@ function drawWordRectangles(words, y, isMe) {
 			push();
 			textAlign(CENTER, CENTER);
 			textSize(16);
-			textSize(round(r * 0.7));
+			textSize(round(r*.7));
 			text(letters[i], x, startY);
 			pop();
 		}
@@ -252,86 +248,65 @@ function onReset() {
 	drawBoard();
 }
 
-function resetBackground() {
-	fill("black");
-	rect(border_side + inset_size, top_height + inset_size, width, height);
+function resetBackground(){
+	stroke("black")
+    fill('black')
+    rect(border_side+ inset_size, top_height + inset_size, width, height)
 
-	//ingame UI
-	noFill();
-	stroke("white");
-	rect(border_side + inset_size, game_y, width, game_header_height);
+    //ingame UI
+    noFill()
+    stroke("white")
+	line(border_side + inset_size,game_y + game_header_height,border_side + inset_size + width,game_y + game_header_height)
+    // rect(border_side + inset_size, game_y, width, game_header_height)
+
+	fill("#f5f3f1")
+	noStroke()
+	
+	rect(outerWidth/2 - 250/2,outerHeight-bottom_height/2 - 15,250, 30)
+
 }
 
-function create_UI() {
-	rectMode(CORNER);
+function create_UI(){
+    rectMode(CORNER)
+    
+    textSize(20)
+    textFont(kodeMonoFont)
+    textAlign(CENTER, CENTER);
 
-	textSize(20);
-	textFont(kodeMonoFont);
-	textAlign(CENTER, CENTER);
+    //1. CREATE THE GAME CONSOLE SHAPE
+    resetBackground() //game area
+    stroke('black')
+    noFill()
+    rect(0,0,outerWidth, top_height)
+    rect(0,outerHeight-bottom_height,outerWidth, bottom_height)
+    //inset lines
+    line(0,outerHeight-bottom_height, border_side+ inset_size,outerHeight-bottom_height - inset_size)  //bottom left
+    line(outerWidth,outerHeight-bottom_height, outerWidth-border_side-inset_size,outerHeight-bottom_height - inset_size) //bottom right
+    line(0,top_height, border_side+ inset_size,top_height+ inset_size) //top left
+    line(outerWidth,top_height, outerWidth-border_side-inset_size,top_height+ inset_size) //top right
 
-	//1. CREATE THE GAME CONSOLE SHAPE
-	resetBackground(); //game area
-	stroke("black");
-	noFill();
-	rect(0, 0, outerWidth, top_height);
-	rect(0, outerHeight - bottom_height, outerWidth, bottom_height);
-	//inset lines
-	line(
-		0,
-		outerHeight - bottom_height,
-		border_side + inset_size,
-		outerHeight - bottom_height - inset_size
-	); //bottom left
-	line(
-		outerWidth,
-		outerHeight - bottom_height,
-		outerWidth - border_side - inset_size,
-		outerHeight - bottom_height - inset_size
-	); //bottom right
-	line(0, top_height, border_side + inset_size, top_height + inset_size); //top left
-	line(
-		outerWidth,
-		top_height,
-		outerWidth - border_side - inset_size,
-		top_height + inset_size
-	); //top right
 
-	//2. ADD THE TOP TEXT
-	noStroke();
-	fill("black");
-	text("WORDS", outerWidth / 2, top_height / 2);
+    //2. ADD THE TOP TEXT
+    noStroke()
+    fill("black")
+    text("WORDS",outerWidth/2,top_height/2)
 
-	//3. ADD THE BOTTOM INPUTS
-	textSize(10);
-	text(
-		"Enter Your Words Above ^",
-		outerWidth / 2,
-		outerHeight - bottom_height / 2 + 30
-	);
+
+    //3. ADD THE BOTTOM INPUTS
+    textSize(10)
+    text("Type Your Words Below",outerWidth/2,outerHeight - bottom_height/2 -30)
+
+	
 }
 
-function drawScreen(type) {
-	// draw rectangle over whole canvas
+function show_opening_screen(){
 
-	if (type === start) {
-		show_opening_screen();
-	} else if (type === win) {
-		show_win_screen();
-	}
 }
 
-function show_opening_screen() {
-	// text instructions
-	// input name - save to me object
-	// button to start game - can call onReset()
+function show_win_screen(){
+
 }
 
-function show_win_screen() {
-	// {player name} won! (shared.winner.name)
-	// list of all their words (shared.winner.words)
-	// check that the player's words are all correct!
-}
-
-function update_minimap() {
-	//if time
+function update_minimap(){
+ 	//if time
 }

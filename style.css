@@ -15,7 +15,7 @@ canvas {
 
 
 input{
-	background-color: inherit;
+	background-color: #f5f3f100;
 	outline:none;
 	border: 1px solid black;
 	font-size: 13px;
@@ -25,4 +25,17 @@ input{
 	width: 250px;
 	transform: translate(-50%, -50%);
 
+}
+
+button{
+	border: 1px solid black;
+	background-color: inherit;
+	font-family: Kode Mono;
+	padding: 6px;
+	font-size: 10px;
+	transform: translateY(-50%);
+}
+button:hover{
+	background-color: black;
+	color: white;
 }

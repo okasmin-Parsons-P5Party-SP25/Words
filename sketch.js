@@ -96,6 +96,7 @@ function setup() {
 	noStroke();
 
 	create_UI()
+	console.log(guests)
 }
 
 
@@ -119,7 +120,7 @@ function drawBoard() {
 		if (guest === me) {
 			y = startY;
 		} else {
-			y = (2 + guestIdx) * spaceSize *2 + startY;
+			y = (1 + guestIdx) * spaceSize *2 + startY;
 			
 			guestIdx++;
 		}

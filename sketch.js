@@ -6,14 +6,6 @@ the player moves forward by the length of the word they entered
 players race to reach the other side
  */
 
-/**
- * TODO:
- * round should reset when a new client joins (myWords = [])
- * potentially limit to 4 guests, or adjust colors and canvas size accordingly
- * submit on press Enter key
- * styling
- */
-
 let shared;
 let wordInput;
 let guests;
@@ -84,6 +76,7 @@ function setup() {
 	createCanvas(width, height);
 	wordInput = createInput();
 	createButton("submit").mousePressed(onSubmit);
+	createButton("reset").mousePressed(onReset);
 	ellipseMode(CENTER);
 	rectMode(CENTER);
 	textAlign(CENTER);
@@ -99,33 +92,32 @@ function draw() {
 
 	text(shared.roundLetter, width / 2, 40);
 
-	drawPlayers();
-	if (me.myWords.length > 0) {
-		drawMyWords();
+	drawBoard();
+}
+
+function drawBoard() {
+	let guestIdx = 0;
+	for (const guest of guests) {
+		let y;
+		if (guest === me) {
+			y = startY;
+		} else {
+			y = (2 + guestIdx) * startY;
+			guestIdx++;
+		}
+
+		drawPlayer(guest.position.x, y);
+
+		const isMe = guest === me;
+		drawWordRectangles(guest.myWords, y, isMe);
 	}
 }
 
-function drawPlayers() {
-	// draw me
+function drawPlayer(x, y) {
 	push();
-	fill(color(palette[0]));
-	ellipse(me.position.x, startY, r, r);
+	fill(color(palette[0])); //update this
+	ellipse(x, y, r, r);
 	pop();
-
-	// draw other guests
-	let guestIdx = 0;
-	for (const guest of guests) {
-		if (guest === me) continue;
-
-		push();
-		// note: will need to fix this if # guests exceed palette
-		// first color is reserved for me
-		fill(color(palette[guestIdx + 1]));
-		ellipse(guest.position.x, 2 * startY + guestIdx * startY, r, r);
-		pop();
-
-		guestIdx++;
-	}
 }
 
 function onSubmit() {
@@ -170,8 +162,7 @@ function validateWord(word) {
 	return true;
 }
 
-function drawMyWords() {
-	const words = me.myWords;
+function drawWordRectangles(words, y, isMe) {
 	let letters = [];
 	words.forEach((word) => letters.push(...word.split("")));
 
@@ -180,21 +171,41 @@ function drawMyWords() {
 		letters = letters.slice(0, maxLettersDraw);
 	}
 
+	// draw rectangle for each letter
 	for (let i = 0; i < letters.length; i++) {
 		const x = i * spaceSize + startX;
 		push();
-		rectMode(CENTER);
 		fill("white");
 		stroke("black");
-		rect(x, startY, r, r);
+		rect(x, y, r, r);
 		pop();
 
-		push();
-		textAlign(CENTER);
-		textSize(16);
-		text(letters[i], x, startY + 4);
-		pop();
+		// fill each rectangle with letter if is me
+		if (isMe) {
+			push();
+			textAlign(CENTER);
+			textSize(16);
+			text(letters[i], x, startY + 4);
+			pop();
+		}
 	}
+}
+
+// submit on enter
+function keyPressed() {
+	if (keyCode === ENTER) {
+		onSubmit();
+	}
+}
+
+// reset game
+function onReset() {
+	for (const guest of guests) {
+		guest.myWords = [];
+		guest.position.x = startX;
+	}
+	shared.roundLetter = random(allLetters);
+	drawBoard();
 }
 
 

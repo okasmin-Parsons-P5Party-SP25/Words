@@ -117,7 +117,7 @@ function draw() {
 	if(me.myWords.length < 2){
 		showTooltip()
 	}
-	
+	// show_opening_screen()
 }
 
 function showTooltip(){
@@ -249,6 +249,7 @@ function onReset() {
 }
 
 function resetBackground(){
+	rectMode(CORNER)
 	stroke("black")
     fill('black')
     rect(border_side+ inset_size, top_height + inset_size, width, height)
@@ -257,7 +258,6 @@ function resetBackground(){
     noFill()
     stroke("white")
 	line(border_side + inset_size,game_y + game_header_height,border_side + inset_size + width,game_y + game_header_height)
-    // rect(border_side + inset_size, game_y, width, game_header_height)
 
 	fill("#f5f3f1")
 	noStroke()
@@ -300,6 +300,41 @@ function create_UI(){
 }
 
 function show_opening_screen(){
+	resetBackground()
+	textSize(40);
+	fill("white")
+	text("HOW TO PLAY", outerWidth / 2, game_y + game_header_height/2);
+
+	//skip button
+	function drawSkipButton(x,y){
+		textSize(13)
+		triangle(x,y, x-20,y+10, x-20,y-10)
+		if(frameCount %20 <10){
+			stroke("white")
+		}else{
+			noStroke()
+		}
+		text('CLICK TO SKIP', x-6,y-30)
+
+		
+	}
+
+
+	// drawSkipButton(outerWidth/2 + 150, outerHeight/2)
+	drawSkipButton(mouseX + 15, mouseY)
+
+	//preview gif goes here
+	noFill()
+	stroke("#FF477B")
+	rectMode(CENTER)
+	rect(outerWidth/2, outerHeight/2, 200,200)
+
+	noStroke()
+	fill("#FF477B")
+	text("Type as many words as you can ", outerWidth / 2, game_y + game_header_height + 100);
+
+
+
 
 }
 

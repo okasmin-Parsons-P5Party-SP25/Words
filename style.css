@@ -1,13 +1,29 @@
 html,
 body {
+	background-color: #F5F3F1;
 	margin: 0;
 	padding: 0;
 	font-family: "Courier New", monospace;
+}
+@font-face {
+	font-family: Kode Mono;
+	src: url("./assets/Kodemono.ttf");
 }
 canvas {
 	display: block;
 }
 
-button {
-	font-family: "Courier New", monospace;
+
+input{
+	background-color: inherit;
+	outline:none;
+	border: 1px solid black;
+	font-size: 13px;
+	font-family: Kode Mono;
+	padding-left: 10px;
+	height: 30px;
+	width: 250px;
+	transform: translate(-50%, -50%);
+
+
 }

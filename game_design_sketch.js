@@ -50,23 +50,34 @@ let allLetters = [
 let width = 400;
 let height = 400;
 
-let startY = 80;
+let border_side = 30
+let top_height = 50
+let bottom_height = 120
+let inset_size = 20
+let outerWidth = width + border_side *2 + inset_size*2;
+let outerHeight = height+top_height+bottom_height+ inset_size*2;
+
+let game_header_height = 80 
+let game_y = top_height+inset_size
+
+let startY = game_y + game_header_height + 20;
 let spaceSize = 20;
 let r = 20;
-let startX = 0 + r / 2;
+let startX = 30 + inset_size + r / 2;
 
 let palette = [
-	[3, 135, 62], // green
-	[255, 183, 0], // dark yellow
-	[255, 115, 0], // orange
-	[8, 79, 255], // blue
-	[255, 255, 255], // white
+	"#E6B101" , //yellow
+    "#FF477B", //pink
+    "#C2D968", //green
+    "#FF4E20" //red
+
 ];
 
+let kodeMonoFont;
 
 
 function preload() {
-	partyConnect("wss://demoserver.p5party.org", "okasmin_words");
+	partyConnect("wss://demoserver.p5party.org", "hellosdjfjis");
 
 	shared = partyLoadShared("shared", {
 		roundLetter: "",
@@ -77,12 +88,16 @@ function preload() {
 		myWords: [],
 	});
 
-	
+    kodeMonoFont = loadFont('./assets/Kodemono.ttf');
 }
 
 function setup() {
-	createCanvas(width, height);
+	createCanvas( outerWidth, outerHeight);
+    noFill()
+    stroke('black')
+    rect(0,0,outerWidth, outerHeight)
 	wordInput = createInput();
+    wordInput.position(outerWidth/2, outerHeight - bottom_height/2 );
 	createButton("submit").mousePressed(onSubmit);
 	ellipseMode(CENTER);
 	rectMode(CENTER);
@@ -90,14 +105,64 @@ function setup() {
 	shared.roundLetter = random(allLetters);
 	partyToggleInfo(true);
 	noStroke();
+
+    create_UI()
+}
+function resetBackground(){
+    fill('black')
+    rect(border_side+ inset_size, top_height + inset_size, width, height)
+
+    //ingame UI
+    noFill()
+    stroke("white")
+    rect(border_side + inset_size, game_y, width, game_header_height)
+
+}
+function create_UI(){
+    rectMode(CORNER)
+    
+    textSize(20)
+    textFont(kodeMonoFont)
+    textAlign(CENTER, CENTER);
+
+    //1. CREATE THE GAME CONSOLE SHAPE
+    resetBackground() //game area
+    stroke('black')
+    noFill()
+    rect(0,0,outerWidth, top_height)
+    rect(0,outerHeight-bottom_height,outerWidth, bottom_height)
+    //inset lines
+    line(0,outerHeight-bottom_height, border_side+ inset_size,outerHeight-bottom_height - inset_size)  //bottom left
+    line(outerWidth,outerHeight-bottom_height, outerWidth-border_side-inset_size,outerHeight-bottom_height - inset_size) //bottom right
+    line(0,top_height, border_side+ inset_size,top_height+ inset_size) //top left
+    line(outerWidth,top_height, outerWidth-border_side-inset_size,top_height+ inset_size) //top right
+
+
+    //2. ADD THE TOP TEXT
+    noStroke()
+    fill("black")
+    text("WORDS",outerWidth/2,top_height/2)
+
+
+    //3. ADD THE BOTTOM INPUTS
+    textSize(10)
+    text("Enter Your Words Above ^",outerWidth/2,outerHeight - bottom_height/2 + 30)
+
+    
 }
 
 function draw() {
-	background(color([255, 204, 204])); //pink
-	textFont("Courier New");
-	textSize(40);
+    resetBackground()
+    noStroke()
+    fill('white')
+    textSize(8);
+    text("type as many words starting with...", outerWidth / 2, game_y + game_header_height/2 - 23);
 
-	text(shared.roundLetter, width / 2, 40);
+	textSize(40);
+	text(shared.roundLetter, outerWidth / 2, game_y + game_header_height/2);
+
+    // fill('red')
+    // rect(outerWidth/2, game_y,10,10)
 
 	drawPlayers();
 	if (me.myWords.length > 0) {
@@ -109,7 +174,9 @@ function drawPlayers() {
 	// draw me
 	push();
 	fill(color(palette[0]));
-	ellipse(me.position.x, startY, r, r);
+    stroke(color(palette[0]))
+    line(me.position.x, game_y+game_header_height, me.position.x, game_y+height)
+    ellipse(me.position.x, startY, r, r);
 	pop();
 
 	// draw other guests
@@ -184,28 +251,17 @@ function drawMyWords() {
 		const x = i * spaceSize + startX;
 		push();
 		rectMode(CENTER);
-		fill("white");
-		stroke("black");
+		noFill();
+		stroke("white");
 		rect(x, startY, r, r);
 		pop();
 
 		push();
 		textAlign(CENTER);
-		textSize(16);
-		text(letters[i], x, startY + 4);
+		textSize(round(r*.7));
+		text(letters[i], x, startY-1);
 		pop();
 	}
 }
 
 
-function show_opening_screen(){
-
-}
-
-function show_win_screen(){
-
-}
-
-function update_minimap(){
- 	//if time
-}

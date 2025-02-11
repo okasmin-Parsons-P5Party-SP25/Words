@@ -195,8 +195,8 @@ function onSubmit() {
 
 		const newX = me.position.x + word.length * spaceSize;
 
-		if (newX >= 390) {
-			me.position.x = win_x - r / 2;
+		if (newX >= win_x - r / 2) {
+			me.position.x = newX;
 			console.log("you win!");
 			shared.winner.name = me.name;
 			shared.winner.words = me.myWords;

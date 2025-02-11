@@ -72,6 +72,10 @@ function preload() {
 
 	shared = partyLoadShared("shared", {
 		roundLetter: "",
+		winner: {
+			words: [],
+			name: "",
+		},
 	});
 	guests = partyLoadGuestShareds();
 	me = partyLoadMyShared({
@@ -120,7 +124,7 @@ function draw() {
 	// show_opening_screen()
 
 	// show winning screen
-	if (shared.winner.words.length) {
+	if (shared.winner && shared.winner.words.length) {
 		drawScreen("win");
 	}
 }

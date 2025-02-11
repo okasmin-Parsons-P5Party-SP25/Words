@@ -66,6 +66,7 @@ let palette = [
 	"#FF4E20", //red
 ];
 let kodeMonoFont;
+let error_message;
 
 function preload() {
 	partyConnect("wss://demoserver.p5party.org", "okasmin_words");
@@ -121,6 +122,7 @@ function draw() {
 	if (me.myWords.length < 2) {
 		showTooltip();
 	}
+	drawErrorMessage()
 	// show_opening_screen()
 
 	// show winning screen
@@ -176,9 +178,9 @@ function drawPlayer(x, y, isMe, idx) {
 	fill(playerColor);
 	stroke(playerColor);
 	line(
-		me.position.x,
+		x,
 		game_y + game_header_height,
-		me.position.x,
+		x,
 		game_y + height
 	);
 	ellipse(x, y, r, r);
@@ -189,6 +191,7 @@ function onSubmit() {
 	const word = wordInput.value().toUpperCase();
 	const valid = validateWord(word);
 	if (!valid) {
+		
 		return;
 	} else {
 		me.myWords.push(word);
@@ -209,25 +212,47 @@ function onSubmit() {
 }
 
 function validateWord(word) {
+	error_message = ""
 	// check if starts with correct letter
 	if (word[0] !== shared.roundLetter) {
 		console.log("first letter needs to match");
-		return false;
+		error_message = "first letter needs to match"
+		return false
 	}
 
 	// check if already submitted that word
 	if (me.myWords.includes(word)) {
 		console.log("already did that");
-		return false;
+		error_message = "already did that"
+		return false
 	}
 
 	// check if at least 4 letters
 	if (word.length < 4) {
 		console.log("word should be at least 4 letters");
-		return false;
+		error_message = "word should be at least 4 letters"
+		return false
+	}
+	error_message = ""
+	return true;
+}
+
+function drawErrorMessage(){
+	fill("#f5f3f1")
+	rect(outerWidth / 2 -130, outerHeight - bottom_height / 2+20, 200, 30)
+	if(error_message != ""){
+		textAlign(LEFT)
+		fill("#FF477B");
+		textSize(8);
+		text(
+			error_message,
+			outerWidth / 2 -130,
+			outerHeight - bottom_height / 2+25
+		
+		);
+		textAlign(CENTER)
 	}
 
-	return true;
 }
 
 function drawWordRectangles(words, y, isMe) {

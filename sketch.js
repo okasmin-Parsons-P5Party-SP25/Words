@@ -75,7 +75,7 @@ function preload() {
 
 	shared = partyLoadShared("shared", {
 		roundLetter: "",
-		gameStarted:false,
+		gameStarted: false,
 		winner: {
 			words: [],
 			name: "placeholder", //this should be set by the input field
@@ -85,8 +85,8 @@ function preload() {
 	me = partyLoadMyShared({
 		position: { x: startX },
 		myWords: [],
-		name:"",
-		gameState:0, //0 means theyre on instruction screen, 1 means name is entered
+		name: "",
+		gameState: 0, //0 means theyre on instruction screen, 1 means name is entered
 	});
 	kodeMonoFont = loadFont("./assets/Kodemono.ttf");
 }
@@ -94,7 +94,9 @@ function preload() {
 function setup() {
 	createCanvas(outerWidth, outerHeight);
 	wordInput = createInput();
-	wordInput.position(outerWidth / 2, outerHeight - bottom_height / 2).addClass('hidden');
+	wordInput
+		.position(outerWidth / 2, outerHeight - bottom_height / 2)
+		.addClass("hidden");
 	// createButton("submit").mousePressed(onSubmit).position(10,top_height/2);
 	createButton("reset")
 		.mousePressed(onReset)
@@ -106,17 +108,22 @@ function setup() {
 	// partyToggleInfo(true);
 	noStroke();
 
-
 	//name input
 	nameInput = createInput();
-	nameInput.position(outerWidth/2,top_height+inset_size+100).addClass('light').addClass('hidden')
-	
+	nameInput
+		.position(outerWidth / 2, top_height + inset_size + 100)
+		.addClass("light")
+		.addClass("hidden");
+
 	//start button
-	if(partyIsHost()){
-		startGameButton = createButton('start game')
-		startGameButton.mousePressed(onStart).position(outerWidth/2,outerHeight-bottom_height-inset_size-100).addClass('light').addClass('hidden')
+	if (partyIsHost()) {
+		startGameButton = createButton("start game");
+		startGameButton
+			.mousePressed(onStart)
+			.position(outerWidth / 2, outerHeight - bottom_height - inset_size - 100)
+			.addClass("light")
+			.addClass("hidden");
 	}
-	
 
 	create_UI();
 }
@@ -136,40 +143,35 @@ function draw() {
 
 	drawBoard();
 
-	
-	
-	if(!shared.gameStarted){
-		if(me.gameState == 0){
+	if (!shared.gameStarted) {
+		if (me.gameState == 0) {
 			drawScreen("instructions");
-		}else if(me.gameState == 1){
+		} else if (me.gameState == 1) {
 			drawScreen("start");
 		}
-	}else{
-		wordInput.removeClass('hidden')
-		
+	} else {
+		wordInput.removeClass("hidden");
 	}
-	
+
 	// show winning screen
 	if (shared.winner && shared.winner.words.length) {
 		show_win_screen();
 	}
 
 	create_UI();
-	if(shared.gameStarted){
+	if (shared.gameStarted) {
 		if (me.myWords.length < 2) {
 			showTooltip();
 		}
-		drawErrorMessage()
+		drawErrorMessage();
 		textSize(12);
-		fill("black")
+		fill("black");
 		text(
 			"enter your words below",
 			outerWidth / 2,
 			outerHeight - bottom_height / 2 - 30
 		);
-
 	}
-	
 }
 
 function showTooltip() {
@@ -239,8 +241,9 @@ function onSubmit() {
 		if (newX >= win_x - r / 2) {
 			me.position.x = newX;
 			console.log("you win!");
-			console.log(me.name)
+			console.log(me.name);
 			shared.winner.name = me.name;
+			console.log(me.name);
 			shared.winner.words = me.myWords;
 		} else {
 			me.position.x = newX;
@@ -276,7 +279,6 @@ function validateWord(word) {
 }
 
 function drawErrorMessage() {
-	
 	// rect(outerWidth / 2 - 130, outerHeight - bottom_height / 2 + 20, 200, 30);
 	if (error_message != "") {
 		textAlign(LEFT);
@@ -325,30 +327,28 @@ function drawWordRectangles(words, y, isMe) {
 // submit on enter
 function keyPressed() {
 	if (keyCode === ENTER) {
-		if(shared.gameStarted){
+		if (shared.gameStarted) {
 			onSubmit();
 		}
-		if(me.gameState == 1){
-			me.name = nameInput.value()
-			console.log('name set:', me.name)
-			nameInput.value("").addClass('hidden')
-			nameInput.remove()
+		if (me.gameState == 1) {
+			me.name = nameInput.value();
+			console.log("name set:", me.name);
+			nameInput.value("").addClass("hidden");
+			nameInput.remove();
 		}
-		
 	}
 }
 //start game
-function onStart(){
-	if(partyIsHost){
-		startGameButton.remove()
+function onStart() {
+	if (partyIsHost) {
+		startGameButton.remove();
 	}
-	if(nameInput){
-		nameInput.remove()
+	if (nameInput) {
+		nameInput.remove();
 	}
-	
-	shared.gameStarted = true
-	onReset() 
 
+	shared.gameStarted = true;
+	onReset();
 }
 
 // reset game
@@ -356,6 +356,7 @@ function onReset() {
 	for (const guest of guests) {
 		guest.myWords = [];
 		guest.position.x = startX;
+		guest.name = guest.name;
 	}
 	shared.winner = { name: "", words: [] };
 	shared.roundLetter = random(allLetters);
@@ -391,13 +392,23 @@ function create_UI() {
 	textAlign(CENTER, CENTER);
 
 	//create all the outside shapes
-	fill("#f5f3f1")
-	rect(0, 0, outerWidth, top_height +inset_size);
-	rect(0, outerHeight - bottom_height-inset_size, outerWidth, bottom_height+inset_size);
-	rect(0, 0, border_side+ inset_size, outerHeight);
-	rect(outerWidth-border_side- inset_size, 0, border_side+ inset_size, outerHeight);
+	fill("#f5f3f1");
+	rect(0, 0, outerWidth, top_height + inset_size);
+	rect(
+		0,
+		outerHeight - bottom_height - inset_size,
+		outerWidth,
+		bottom_height + inset_size
+	);
+	rect(0, 0, border_side + inset_size, outerHeight);
+	rect(
+		outerWidth - border_side - inset_size,
+		0,
+		border_side + inset_size,
+		outerHeight
+	);
 	stroke("black");
-	rect(0, 0, outerWidth, top_height );
+	rect(0, 0, outerWidth, top_height);
 	rect(0, outerHeight - bottom_height, outerWidth, bottom_height);
 	//inset lines
 	line(
@@ -426,7 +437,6 @@ function create_UI() {
 	text("WORDS", outerWidth / 2, top_height / 2);
 
 	//3. ADD THE BOTTOM INPUTS
-	
 }
 
 function drawScreen(type) {
@@ -435,27 +445,23 @@ function drawScreen(type) {
 	rect(border_side + inset_size, top_height + inset_size, width, height);
 
 	// render the relevant text
-	if (type === "instructions"){
-		show_instructions()
-	}else if(type === "start") {
+	if (type === "instructions") {
+		show_instructions();
+	} else if (type === "start") {
 		show_opening_screen();
 	} else if (type === "win") {
 		show_win_screen();
 	}
 }
 
-
-function mousePressed(){
-	if(me.gameState == 0){
-		me.gameState = 1
+function mousePressed() {
+	if (me.gameState == 0) {
+		me.gameState = 1;
 	}
 }
 
-
-
-
-function show_instructions(){
-	push()
+function show_instructions() {
+	push();
 	function drawSkipButton(x, y) {
 		textSize(13);
 		triangle(x, y, x - 20, y + 10, x - 20, y - 10);
@@ -468,14 +474,14 @@ function show_instructions(){
 	}
 
 	textSize(30);
-	noStroke()
+	noStroke();
 	fill("white");
 	text("HOW TO PLAY", outerWidth / 2, game_y + game_header_height / 2);
-	let text_x = outerWidth/2
-	let text_y= 30
+	let text_x = outerWidth / 2;
+	let text_y = 30;
 
-	textAlign(CENTER)
-	textSize(12)
+	textAlign(CENTER);
+	textSize(12);
 	noStroke();
 
 	text(
@@ -486,70 +492,67 @@ function show_instructions(){
 	text(
 		"1. Start with the given letter",
 		text_x,
-		game_y + game_header_height + text_y+30
+		game_y + game_header_height + text_y + 30
 	);
 	text(
 		"2. Are at least 4 letters long",
 		text_x,
-		game_y + game_header_height + text_y+50
+		game_y + game_header_height + text_y + 50
 	);
 
-	stroke('white')
+	stroke("white");
 	text(
 		"First person to reach the end wins!",
 		text_x,
 		game_y + game_header_height + text_y + 100
 	);
 
-	drawSkipButton(mouseX+10, mouseY)
-	pop()
+	drawSkipButton(mouseX + 10, mouseY);
+	pop();
 }
 
 function show_opening_screen() {
-	let bottom_pos = outerHeight-bottom_height-inset_size-100
-	let top_pos = top_height+inset_size+50
-	let text_x = outerWidth/2
-	textAlign(CENTER)
-	textSize(12)
-	fill("white")
+	let bottom_pos = outerHeight - bottom_height - inset_size - 100;
+	let top_pos = top_height + inset_size + 50;
+	let text_x = outerWidth / 2;
+	textAlign(CENTER);
+	textSize(12);
+	fill("white");
 
 	//input for your name
-	nameInput.removeClass('hidden')
-	text("Enter your name", text_x,top_pos+20)
-	
+	nameInput.removeClass("hidden");
+	text("Enter your name", text_x, top_pos + 20);
 
 	//show previews
-	let guestIdx =  0
-	let player_x = text_x - 100
+	let guestIdx = 0;
+	let player_x = text_x - 100;
 	// console.log(me.name)
-	for(const guest of guests){
-		if(guest.name != ""){
-			fill(palette[guestIdx%(palette.length)])
-			ellipse(player_x, top_pos + 130, r,r)
-			textSize(10)
-			text(guest.name, player_x, top_pos + 150)
-			player_x += r + 20
+	for (const guest of guests) {
+		if (guest.name != "") {
+			fill(palette[guestIdx % palette.length]);
+			ellipse(player_x, top_pos + 130, r, r);
+			textSize(10);
+			text(guest.name, player_x, top_pos + 150);
+			player_x += r + 20;
 			guestIdx++;
 		}
-		
 	}
 
-	fill('white')
-	textSize(10)
-	if(partyIsHost()){
+	fill("white");
+	textSize(10);
+	if (partyIsHost()) {
 		//draw a button
-		text("You are the host", text_x,bottom_pos-30)
-		startGameButton.removeClass("hidden")
-		
-	}else{
+		text("You are the host", text_x, bottom_pos - 30);
+		startGameButton.removeClass("hidden");
+	} else {
 		if (frameCount % 40 < 10) {
-			text("Waiting for host to start game", text_x,bottom_pos)
-		} else if(frameCount % 40 < 20) {
-			text("Waiting for host to start game.", text_x,bottom_pos)
-		}else if(frameCount % 40 < 30){
-			text("Waiting for host to start game..", text_x,bottom_pos)
-		}else{
-			text("Waiting for host to start game...", text_x,bottom_pos)
+			text("Waiting for host to start game", text_x, bottom_pos);
+		} else if (frameCount % 40 < 20) {
+			text("Waiting for host to start game.", text_x, bottom_pos);
+		} else if (frameCount % 40 < 30) {
+			text("Waiting for host to start game..", text_x, bottom_pos);
+		} else {
+			text("Waiting for host to start game...", text_x, bottom_pos);
 		}
 	}
 }
@@ -560,13 +563,14 @@ function show_win_screen() {
 	const yTextSecondLine = game_y + game_header_height + 20;
 	const yTextWords = yTextSecondLine + 32;
 
+	let winText = "Winner!";
+	if (shared.winner.name.length) {
+		winText = `${shared.winner.name} wins!`;
+	}
+
 	textSize(32);
 	fill("white");
-	text(
-		`${shared.winner.name} wins!`,
-		outerWidth / 2,
-		game_y + game_header_height / 2
-	);
+	text(winText, outerWidth / 2, game_y + game_header_height / 2);
 
 	push();
 	textAlign(LEFT);

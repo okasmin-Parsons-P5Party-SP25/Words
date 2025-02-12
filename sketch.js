@@ -39,8 +39,8 @@ let allLetters = [
 	"Z",
 ];
 
-let width = 400; //width of screen play area
-let height = 400; //height of screen play area
+let width = 500; //width of screen play area
+let height = 500; //height of screen play area
 
 let border_side = 30;
 let top_height = 50;
@@ -78,7 +78,7 @@ function preload() {
 		gameStarted:false,
 		winner: {
 			words: [],
-			name: "",
+			name: "placeholder", //this should be set by the input field
 		},
 	});
 	guests = partyLoadGuestShareds();
@@ -119,11 +119,11 @@ function draw() {
 	resetBackground();
 	noStroke();
 	fill("white");
-	textSize(8);
+	textSize(12);
 	text(
-		"type as many words starting with...",
+		"type as many words as you can starting with...",
 		outerWidth / 2,
-		game_y + game_header_height / 2 - 23
+		game_y + 12
 	);
 	textSize(40);
 	text(shared.roundLetter, outerWidth / 2, game_y + game_header_height / 2);
@@ -144,7 +144,7 @@ function draw() {
 	
 	// show winning screen
 	if (shared.winner && shared.winner.words.length) {
-		drawScreen("win");
+		show_win_screen();
 	}
 	// drawScreen("start");
 
@@ -152,13 +152,15 @@ function draw() {
 }
 
 function showTooltip() {
+	push();
 	fill("#FF477B");
-	textSize(8);
+	textSize(10);
 	text(
 		"Press Enter to Submit ->",
 		outerWidth / 2 + 60,
 		outerHeight - bottom_height / 2
 	);
+	pop();
 }
 
 function drawBoard() {
@@ -197,12 +199,7 @@ function drawPlayer(x, y, isMe, idx) {
 	push();
 	fill(playerColor);
 	stroke(playerColor);
-	line(
-		x,
-		game_y + game_header_height,
-		x,
-		game_y + height
-	);
+	line(x, game_y + game_header_height, x, game_y + height);
 	ellipse(x, y, r, r);
 	pop();
 }
@@ -211,7 +208,6 @@ function onSubmit() {
 	const word = wordInput.value().toUpperCase();
 	const valid = validateWord(word);
 	if (!valid) {
-		
 		return;
 	} else {
 		me.myWords.push(word);
@@ -219,8 +215,8 @@ function onSubmit() {
 
 		const newX = me.position.x + word.length * spaceSize;
 
-		if (newX >= 390) {
-			me.position.x = win_x - r / 2;
+		if (newX >= win_x - r / 2) {
+			me.position.x = newX;
 			console.log("you win!");
 			shared.winner.name = me.name;
 			shared.winner.words = me.myWords;
@@ -232,47 +228,45 @@ function onSubmit() {
 }
 
 function validateWord(word) {
-	error_message = ""
+	error_message = "";
 	// check if starts with correct letter
 	if (word[0] !== shared.roundLetter) {
 		console.log("first letter needs to match");
-		error_message = "first letter needs to match"
-		return false
+		error_message = `first letter needs to be ${shared.roundLetter}`;
+		return false;
 	}
 
 	// check if already submitted that word
 	if (me.myWords.includes(word)) {
 		console.log("already did that");
-		error_message = "already did that"
-		return false
+		error_message = "already used that word";
+		return false;
 	}
 
 	// check if at least 4 letters
 	if (word.length < 4) {
 		console.log("word should be at least 4 letters");
-		error_message = "word should be at least 4 letters"
-		return false
+		error_message = "word should be at least 4 letters";
+		return false;
 	}
-	error_message = ""
+	error_message = "";
 	return true;
 }
 
-function drawErrorMessage(){
-	fill("#f5f3f1")
-	rect(outerWidth / 2 -130, outerHeight - bottom_height / 2+20, 200, 30)
-	if(error_message != ""){
-		textAlign(LEFT)
+function drawErrorMessage() {
+	fill("#f5f3f1");
+	rect(outerWidth / 2 - 130, outerHeight - bottom_height / 2 + 20, 200, 30);
+	if (error_message != "") {
+		textAlign(LEFT);
 		fill("#FF477B");
 		textSize(8);
 		text(
 			error_message,
-			outerWidth / 2 -130,
-			outerHeight - bottom_height / 2+25
-		
+			outerWidth / 2 - 130,
+			outerHeight - bottom_height / 2 + 25
 		);
-		textAlign(CENTER)
+		textAlign(CENTER);
 	}
-
 }
 
 function drawWordRectangles(words, y, isMe) {
@@ -409,9 +403,9 @@ function create_UI() {
 	text("WORDS", outerWidth / 2, top_height / 2);
 
 	//3. ADD THE BOTTOM INPUTS
-	textSize(10);
+	textSize(12);
 	text(
-		"Type Your Words Below",
+		"enter your words below",
 		outerWidth / 2,
 		outerHeight - bottom_height / 2 - 30
 	);
@@ -543,17 +537,22 @@ function show_opening_screen() {
 }
 
 function show_win_screen() {
+	resetBackground();
 	const xText = border_side + inset_size + 40;
-	const yTextFirstLine = top_height + inset_size + 40;
-	const yTextSecondLine = yTextFirstLine + 40;
-	const yTextWords = yTextFirstLine + 80;
+	const yTextSecondLine = game_y + game_header_height + 20;
+	const yTextWords = yTextSecondLine + 32;
+
+	textSize(32);
+	fill("white");
+	text(
+		`${shared.winner.name} wins!`,
+		outerWidth / 2,
+		game_y + game_header_height / 2
+	);
 
 	push();
 	textAlign(LEFT);
 	fill("white");
-	textSize(18);
-	// TODO - update with player name once add input
-	text("[player] wins!", xText, yTextFirstLine);
 	textSize(14);
 	text("Check that their words are all legit:", xText, yTextSecondLine);
 	const { words } = shared.winner;
@@ -561,8 +560,4 @@ function show_win_screen() {
 		text(words[i], xText, yTextWords + i * 20);
 	}
 	pop();
-}
-
-function update_minimap() {
-	//if time
 }

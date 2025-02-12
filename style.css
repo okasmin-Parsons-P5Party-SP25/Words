@@ -1,6 +1,6 @@
 html,
 body {
-	background-color: #F5F3F1;
+	background-color: #f5f3f1;
 	margin: 0;
 	padding: 0;
 	font-family: "Courier New", monospace;
@@ -14,16 +14,15 @@ canvas {
 	border: 1px solid black;
 }
 
-
-input{
+input {
 	background-color: #f5f3f100;
-	outline:none;
+	outline: none;
 	border: 1px solid black;
 	font-size: 13px;
 	font-family: Kode Mono;
 	padding-left: 10px;
 	height: 30px;
-	width: 250px;
+	width: 280px;
 	transform: translate(-50%, -50%);
 
 }
@@ -41,7 +40,7 @@ input.light{
 
 }
 
-button{
+button {
 	border: 1px solid black;
 	background-color: inherit;
 	font-family: Kode Mono;
@@ -49,7 +48,7 @@ button{
 	font-size: 10px;
 	transform: translateY(-50%);
 }
-button:hover{
+button:hover {
 	background-color: black;
 	color: white;
 }

@@ -94,7 +94,7 @@ function preload() {
 function setup() {
 	createCanvas(outerWidth, outerHeight);
 	wordInput = createInput();
-	wordInput.position(outerWidth / 2, outerHeight - bottom_height / 2);
+	wordInput.position(outerWidth / 2, outerHeight - bottom_height / 2).addClass('hidden');
 	// createButton("submit").mousePressed(onSubmit).position(10,top_height/2);
 	createButton("reset")
 		.mousePressed(onReset)
@@ -144,19 +144,32 @@ function draw() {
 		}else if(me.gameState == 1){
 			drawScreen("start");
 		}
+	}else{
+		wordInput.removeClass('hidden')
+		
 	}
 	
 	// show winning screen
 	if (shared.winner && shared.winner.words.length) {
 		show_win_screen();
 	}
-	// drawScreen("start");
 
 	create_UI();
-	if (me.myWords.length < 2) {
-		showTooltip();
+	if(shared.gameStarted){
+		if (me.myWords.length < 2) {
+			showTooltip();
+		}
+		drawErrorMessage()
+		textSize(12);
+		fill("black")
+		text(
+			"enter your words below",
+			outerWidth / 2,
+			outerHeight - bottom_height / 2 - 30
+		);
+
 	}
-	drawErrorMessage()
+	
 }
 
 function showTooltip() {
@@ -226,6 +239,7 @@ function onSubmit() {
 		if (newX >= win_x - r / 2) {
 			me.position.x = newX;
 			console.log("you win!");
+			console.log(me.name)
 			shared.winner.name = me.name;
 			shared.winner.words = me.myWords;
 		} else {
@@ -316,6 +330,7 @@ function keyPressed() {
 		}
 		if(me.gameState == 1){
 			me.name = nameInput.value()
+			console.log('name set:', me.name)
 			nameInput.value("").addClass('hidden')
 			nameInput.remove()
 		}
@@ -411,12 +426,7 @@ function create_UI() {
 	text("WORDS", outerWidth / 2, top_height / 2);
 
 	//3. ADD THE BOTTOM INPUTS
-	textSize(12);
-	text(
-		"enter your words below",
-		outerWidth / 2,
-		outerHeight - bottom_height / 2 - 30
-	);
+	
 }
 
 function drawScreen(type) {

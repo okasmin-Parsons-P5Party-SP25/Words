@@ -67,12 +67,15 @@ let palette = [
 ];
 let kodeMonoFont;
 let error_message;
+let startGameButton;
+let nameInput;
 
 function preload() {
 	partyConnect("wss://demoserver.p5party.org", "okasmin_words");
 
 	shared = partyLoadShared("shared", {
 		roundLetter: "",
+		gameStarted:false,
 		winner: {
 			words: [],
 			name: "",
@@ -82,6 +85,8 @@ function preload() {
 	me = partyLoadMyShared({
 		position: { x: startX },
 		myWords: [],
+		name:"",
+		gameState:0, //0 means theyre on instruction screen, 1 means name is entered
 	});
 	kodeMonoFont = loadFont("./assets/Kodemono.ttf");
 }
@@ -98,8 +103,14 @@ function setup() {
 	rectMode(CENTER);
 	textAlign(CENTER);
 	shared.roundLetter = random(allLetters);
-	partyToggleInfo(true);
+	// partyToggleInfo(true);
 	noStroke();
+
+	let top_pos = top_height+inset_size+50
+	let text_x = outerWidth/2
+	nameInput = createInput();
+	nameInput.position(text_x,top_pos+50).addClass('light').addClass('hidden')
+	
 
 	create_UI();
 }
@@ -123,12 +134,21 @@ function draw() {
 		showTooltip();
 	}
 	drawErrorMessage()
-	// show_opening_screen()
-
+	if(!shared.gameStarted){
+		if(me.gameState == 0){
+			drawScreen("instructions");
+		}else if(me.gameState == 1){
+			drawScreen("start");
+		}
+	}
+	
 	// show winning screen
 	if (shared.winner && shared.winner.words.length) {
 		drawScreen("win");
 	}
+	// drawScreen("start");
+
+	create_UI();
 }
 
 function showTooltip() {
@@ -289,8 +309,24 @@ function drawWordRectangles(words, y, isMe) {
 // submit on enter
 function keyPressed() {
 	if (keyCode === ENTER) {
-		onSubmit();
+		if(shared.gameStarted){
+			onSubmit();
+		}
+		if(me.gameState == 1){
+			me.name = nameInput.value()
+			nameInput.value("")
+			nameInput.remove()
+
+		}
+		
 	}
+}
+//start game
+function onStart(){
+	startGameButton.remove()
+	shared.gameStarted = true
+	onReset() 
+
 }
 
 // reset game
@@ -334,10 +370,17 @@ function create_UI() {
 	textAlign(CENTER, CENTER);
 
 	//1. CREATE THE GAME CONSOLE SHAPE
-	resetBackground(); //game area
+	// resetBackground(); //game area
+	
+	fill("#f5f3f1")
+	// noFill();
+	rect(0, 0, outerWidth, top_height +inset_size);
+	rect(0, outerHeight - bottom_height-inset_size, outerWidth, bottom_height+inset_size);
+
+	rect(0, 0, border_side+ inset_size, outerHeight);
+	rect(outerWidth-border_side- inset_size, 0, border_side+ inset_size, outerHeight);
 	stroke("black");
-	noFill();
-	rect(0, 0, outerWidth, top_height);
+	rect(0, 0, outerWidth, top_height );
 	rect(0, outerHeight - bottom_height, outerWidth, bottom_height);
 	//inset lines
 	line(
@@ -380,20 +423,27 @@ function drawScreen(type) {
 	rect(border_side + inset_size, top_height + inset_size, width, height);
 
 	// render the relevant text
-	if (type === "start") {
+	if (type === "instructions"){
+		show_instructions()
+	}else if(type === "start") {
 		show_opening_screen();
 	} else if (type === "win") {
 		show_win_screen();
 	}
 }
 
-function show_opening_screen() {
-	resetBackground();
-	textSize(40);
-	fill("white");
-	text("HOW TO PLAY", outerWidth / 2, game_y + game_header_height / 2);
 
-	//skip button
+function mousePressed(){
+	if(me.gameState == 0){
+		me.gameState = 1
+	}
+}
+
+
+
+
+function show_instructions(){
+	push()
 	function drawSkipButton(x, y) {
 		textSize(13);
 		triangle(x, y, x - 20, y + 10, x - 20, y - 10);
@@ -405,22 +455,91 @@ function show_opening_screen() {
 		text("CLICK TO SKIP", x - 6, y - 30);
 	}
 
-	// drawSkipButton(outerWidth/2 + 150, outerHeight/2)
-	drawSkipButton(mouseX + 15, mouseY);
+	textSize(30);
+	noStroke()
+	fill("white");
+	text("HOW TO PLAY", outerWidth / 2, game_y + game_header_height / 2);
+	let text_x = outerWidth/2
+	let text_y= 30
 
-	//preview gif goes here
-	noFill();
-	stroke("#FF477B");
-	rectMode(CENTER);
-	rect(outerWidth / 2, outerHeight / 2, 200, 200);
-
+	textAlign(CENTER)
+	textSize(12)
 	noStroke();
-	fill("#FF477B");
+
 	text(
-		"Type as many words as you can ",
-		outerWidth / 2,
-		game_y + game_header_height + 100
+		"Submit as many words that...",
+		text_x,
+		game_y + game_header_height + text_y
 	);
+	text(
+		"1. Start with the given letter",
+		text_x,
+		game_y + game_header_height + text_y+30
+	);
+	text(
+		"2. Are at least 4 letters long",
+		text_x,
+		game_y + game_header_height + text_y+50
+	);
+
+	stroke('white')
+	text(
+		"First person to reach the end wins!",
+		text_x,
+		game_y + game_header_height + text_y + 100
+	);
+
+	drawSkipButton(mouseX+10, mouseY)
+	pop()
+}
+
+function show_opening_screen() {
+	let bottom_pos = outerHeight-bottom_height-inset_size-100
+	let top_pos = top_height+inset_size+50
+	let text_x = outerWidth/2
+	textAlign(CENTER)
+	textSize(12)
+	fill("white")
+
+	//input for your name
+	nameInput.removeClass('hidden')
+	text("Enter your name", text_x,top_pos+20)
+	
+
+	//show previews
+	let guestIdx =  0
+	let player_x = text_x - 100
+	// console.log(me.name)
+	for(const guest of guests){
+		// console.log("guest", guest.name)
+		const isMe = guest ==me;
+		fill(palette[guestIdx%(palette.length)])
+		ellipse(player_x, top_pos + 130, r,r)
+		textSize(8)
+		text(guest.name, player_x, top_pos + 100)
+		player_x += r + 20
+		guestIdx++;
+	}
+
+	fill('white')
+	textSize(10)
+	if(partyIsHost()){
+		//draw a button
+		text("You are the host", text_x,bottom_pos-30)
+		startGameButton = createButton('start game')
+		startGameButton.mousePressed(onStart).position(text_x,bottom_pos).addClass('light')
+
+	}else{
+		if (frameCount % 40 < 10) {
+			text("Waiting for host to start game", text_x,bottom_pos)
+		} else if(frameCount % 40 < 20) {
+			text("Waiting for host to start game.", text_x,bottom_pos)
+		}else if(frameCount % 40 < 30){
+			text("Waiting for host to start game..", text_x,bottom_pos)
+		}else{
+			text("Waiting for host to start game...", text_x,bottom_pos)
+		}
+	}
 }
 
 function show_win_screen() {

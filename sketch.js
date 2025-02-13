@@ -39,25 +39,26 @@ let allLetters = [
 	"Z",
 ];
 
-let width = 500; //width of screen play area
-let height = 500; //height of screen play area
+let innerWidth = 500; //innerWidth of screen play area
+let innerHeight = 500; //innerHeight of screen play area
 
 let border_side = 30;
 let top_height = 50;
 let bottom_height = 120;
 let inset_size = 20;
-let outerWidth = width + border_side * 2 + inset_size * 2;
-let outerHeight = height + top_height + bottom_height + inset_size * 2;
+let outerWidth = innerWidth + border_side * 2 + inset_size * 2;
+let outerHeight = innerHeight + top_height + bottom_height + inset_size * 2;
 
 let game_header_height = 80;
 let game_y = top_height + inset_size;
 
-let win_x = width + border_side + inset_size;
+let win_x = innerWidth + border_side + inset_size;
 
 let startY = game_y + game_header_height + 20;
 let spaceSize = 20;
 let r = 20;
 let startX = 30 + inset_size + r / 2;
+
 
 let palette = [
 	"#E6B101", //yellow
@@ -69,6 +70,8 @@ let kodeMonoFont;
 let error_message;
 let startGameButton;
 let nameInput;
+let texture;
+let sounds = {}
 
 function preload() {
 	partyConnect("wss://demoserver.p5party.org", "okasmin_words");
@@ -89,6 +92,9 @@ function preload() {
 		gameState: 0, //0 means theyre on instruction screen, 1 means name is entered
 	});
 	kodeMonoFont = loadFont("./assets/Kodemono.ttf");
+	texture =  loadImage('./assets/texture.jpg');
+	sounds.click = loadSound('./assets/sounds/click.wav');
+	sounds.type = loadSound('./assets/sounds/type.wav');
 }
 
 function setup() {
@@ -107,6 +113,7 @@ function setup() {
 	shared.roundLetter = random(allLetters);
 	// partyToggleInfo(true);
 	noStroke();
+	p5grain.setup();
 
 	//name input
 	nameInput = createInput();
@@ -158,6 +165,9 @@ function draw() {
 		show_win_screen();
 	}
 
+	applyMonochromaticGrain(42);
+	
+
 	create_UI();
 	if (shared.gameStarted) {
 		if (me.myWords.length < 2) {
@@ -172,6 +182,7 @@ function draw() {
 			outerHeight - bottom_height / 2 - 30
 		);
 	}
+	
 }
 
 function showTooltip() {
@@ -222,7 +233,7 @@ function drawPlayer(x, y, isMe, idx) {
 	push();
 	fill(playerColor);
 	stroke(playerColor);
-	line(x, game_y + game_header_height, x, game_y + height);
+	line(x, game_y + game_header_height, x, game_y + innerHeight);
 	ellipse(x, y, r, r);
 	pop();
 }
@@ -254,10 +265,12 @@ function onSubmit() {
 
 function validateWord(word) {
 	error_message = "";
+	
 	// check if starts with correct letter
 	if (word[0] !== shared.roundLetter) {
 		console.log("first letter needs to match");
 		error_message = `first letter needs to be ${shared.roundLetter}`;
+		wordInput.value('')
 		return false;
 	}
 
@@ -265,6 +278,7 @@ function validateWord(word) {
 	if (me.myWords.includes(word)) {
 		console.log("already did that");
 		error_message = "already used that word";
+		wordInput.value('')
 		return false;
 	}
 
@@ -272,8 +286,20 @@ function validateWord(word) {
 	if (word.length < 4) {
 		console.log("word should be at least 4 letters");
 		error_message = "word should be at least 4 letters";
+		wordInput.value('')
 		return false;
 	}
+
+	// check if some basic english word rules apply
+	const regex = /^(?!.*[bcdfghjklmnpqrstvwxyz]{4})[A-Za-z]*(?:[aeiou][A-Za-z]*)*$/;
+	const regex_consonants = /[bcdfghjklmnpqrstvwxyz]{4}/i;
+	if(!regex.test(word) || regex_consonants.test(word)){
+		console.log("invalid word");
+		error_message = `${word} is not a valid word`;
+		wordInput.value('')
+		return false;
+	}
+
 	error_message = "";
 	return true;
 }
@@ -297,7 +323,7 @@ function drawWordRectangles(words, y, isMe) {
 	let letters = [];
 	words.forEach((word) => letters.push(...word.split("")));
 
-	const maxLettersDraw = width / spaceSize - 1;
+	const maxLettersDraw = innerWidth / spaceSize - 1;
 	if (letters.length > maxLettersDraw) {
 		letters = letters.slice(0, maxLettersDraw);
 	}
@@ -327,6 +353,7 @@ function drawWordRectangles(words, y, isMe) {
 // submit on enter
 function keyPressed() {
 	if (keyCode === ENTER) {
+		sounds.click.play()
 		if (shared.gameStarted) {
 			onSubmit();
 		}
@@ -336,6 +363,9 @@ function keyPressed() {
 			nameInput.value("").addClass("hidden");
 			nameInput.remove();
 		}
+	}else{
+		sounds.type.setVolume(.2)
+		sounds.type.play()
 	}
 }
 //start game
@@ -367,7 +397,7 @@ function resetBackground() {
 	rectMode(CORNER);
 	stroke("black");
 	fill("black");
-	rect(border_side + inset_size, top_height + inset_size, width, height);
+	rect(border_side + inset_size, top_height + inset_size, innerWidth, innerHeight);
 
 	//ingame UI
 	noFill();
@@ -375,7 +405,7 @@ function resetBackground() {
 	line(
 		border_side + inset_size,
 		game_y + game_header_height,
-		border_side + inset_size + width,
+		border_side + inset_size + innerWidth,
 		game_y + game_header_height
 	);
 
@@ -442,7 +472,7 @@ function create_UI() {
 function drawScreen(type) {
 	// draw black rectangle over whole playing area
 	fill("black");
-	rect(border_side + inset_size, top_height + inset_size, width, height);
+	rect(border_side + inset_size, top_height + inset_size, innerWidth, innerHeight);
 
 	// render the relevant text
 	if (type === "instructions") {
@@ -455,6 +485,7 @@ function drawScreen(type) {
 }
 
 function mousePressed() {
+	sounds.click.play()
 	if (me.gameState == 0) {
 		me.gameState = 1;
 	}

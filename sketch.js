@@ -113,7 +113,7 @@ function setup() {
 	shared.roundLetter = random(allLetters);
 	// partyToggleInfo(true);
 	noStroke();
-	p5grain.setup();
+	// p5grain.setup();
 
 	//name input
 	nameInput = createInput();
@@ -165,7 +165,7 @@ function draw() {
 		show_win_screen();
 	}
 
-	applyMonochromaticGrain(42);
+	// applyMonochromaticGrain(42);
 	
 
 	create_UI();

@@ -59,7 +59,6 @@ let spaceSize = 20;
 let r = 20;
 let startX = 30 + inset_size + r / 2;
 
-
 let palette = [
 	"#E6B101", //yellow
 	"#FF477B", //pink
@@ -71,7 +70,7 @@ let error_message;
 let startGameButton;
 let nameInput;
 let texture;
-let sounds = {}
+let sounds = {};
 
 function preload() {
 	partyConnect("wss://demoserver.p5party.org", "okasmin_words");
@@ -92,9 +91,9 @@ function preload() {
 		gameState: 0, //0 means theyre on instruction screen, 1 means name is entered
 	});
 	kodeMonoFont = loadFont("./assets/Kodemono.ttf");
-	texture =  loadImage('./assets/texture.jpg');
-	sounds.click = loadSound('./assets/sounds/click.wav');
-	sounds.type = loadSound('./assets/sounds/type.wav');
+	texture = loadImage("./assets/texture.jpg");
+	sounds.click = loadSound("./assets/sounds/click.wav");
+	sounds.type = loadSound("./assets/sounds/type.wav");
 }
 
 function setup() {
@@ -103,15 +102,16 @@ function setup() {
 	wordInput
 		.position(outerWidth / 2, outerHeight - bottom_height / 2)
 		.addClass("hidden");
-	// createButton("submit").mousePressed(onSubmit).position(10,top_height/2);
 	createButton("reset")
 		.mousePressed(onReset)
 		.position(10, top_height / 2);
 	ellipseMode(CENTER);
 	rectMode(CENTER);
 	textAlign(CENTER);
-	shared.roundLetter = random(allLetters);
-	// partyToggleInfo(true);
+	if (partyIsHost()) {
+		shared.roundLetter = random(allLetters);
+	}
+	partyToggleInfo(true);
 	noStroke();
 	p5grain.setup();
 
@@ -166,7 +166,6 @@ function draw() {
 	}
 
 	applyMonochromaticGrain(42);
-	
 
 	create_UI();
 	if (shared.gameStarted) {
@@ -182,7 +181,6 @@ function draw() {
 			outerHeight - bottom_height / 2 - 30
 		);
 	}
-	
 }
 
 function showTooltip() {
@@ -252,9 +250,7 @@ function onSubmit() {
 		if (newX >= win_x - r / 2) {
 			me.position.x = newX;
 			console.log("you win!");
-			console.log(me.name);
 			shared.winner.name = me.name;
-			console.log(me.name);
 			shared.winner.words = me.myWords;
 		} else {
 			me.position.x = newX;
@@ -265,12 +261,12 @@ function onSubmit() {
 
 function validateWord(word) {
 	error_message = "";
-	
+
 	// check if starts with correct letter
 	if (word[0] !== shared.roundLetter) {
 		console.log("first letter needs to match");
 		error_message = `first letter needs to be ${shared.roundLetter}`;
-		wordInput.value('')
+		wordInput.value("");
 		return false;
 	}
 
@@ -278,7 +274,7 @@ function validateWord(word) {
 	if (me.myWords.includes(word)) {
 		console.log("already did that");
 		error_message = "already used that word";
-		wordInput.value('')
+		wordInput.value("");
 		return false;
 	}
 
@@ -286,17 +282,18 @@ function validateWord(word) {
 	if (word.length < 4) {
 		console.log("word should be at least 4 letters");
 		error_message = "word should be at least 4 letters";
-		wordInput.value('')
+		wordInput.value("");
 		return false;
 	}
 
 	// check if some basic english word rules apply
-	const regex = /^(?!.*[bcdfghjklmnpqrstvwxyz]{4})[A-Za-z]*(?:[aeiou][A-Za-z]*)*$/;
+	const regex =
+		/^(?!.*[bcdfghjklmnpqrstvwxyz]{4})[A-Za-z]*(?:[aeiou][A-Za-z]*)*$/;
 	const regex_consonants = /[bcdfghjklmnpqrstvwxyz]{4}/i;
-	if(!regex.test(word) || regex_consonants.test(word)){
+	if (!regex.test(word) || regex_consonants.test(word)) {
 		console.log("invalid word");
 		error_message = `${word} is not a valid word`;
-		wordInput.value('')
+		wordInput.value("");
 		return false;
 	}
 
@@ -353,19 +350,18 @@ function drawWordRectangles(words, y, isMe) {
 // submit on enter
 function keyPressed() {
 	if (keyCode === ENTER) {
-		sounds.click.play()
+		sounds.click.play();
 		if (shared.gameStarted) {
 			onSubmit();
 		}
-		if (me.gameState == 1) {
+		if (me.gameState == 1 && !shared.gameStarted) {
 			me.name = nameInput.value();
-			console.log("name set:", me.name);
 			nameInput.value("").addClass("hidden");
 			nameInput.remove();
 		}
-	}else{
-		sounds.type.setVolume(.2)
-		sounds.type.play()
+	} else {
+		sounds.type.setVolume(0.2);
+		sounds.type.play();
 	}
 }
 //start game
@@ -381,7 +377,7 @@ function onStart() {
 	onReset();
 }
 
-// reset game
+// reset game but don't return to start
 function onReset() {
 	for (const guest of guests) {
 		guest.myWords = [];
@@ -397,7 +393,12 @@ function resetBackground() {
 	rectMode(CORNER);
 	stroke("black");
 	fill("black");
-	rect(border_side + inset_size, top_height + inset_size, innerWidth, innerHeight);
+	rect(
+		border_side + inset_size,
+		top_height + inset_size,
+		innerWidth,
+		innerHeight
+	);
 
 	//ingame UI
 	noFill();
@@ -472,7 +473,12 @@ function create_UI() {
 function drawScreen(type) {
 	// draw black rectangle over whole playing area
 	fill("black");
-	rect(border_side + inset_size, top_height + inset_size, innerWidth, innerHeight);
+	rect(
+		border_side + inset_size,
+		top_height + inset_size,
+		innerWidth,
+		innerHeight
+	);
 
 	// render the relevant text
 	if (type === "instructions") {
@@ -485,7 +491,7 @@ function drawScreen(type) {
 }
 
 function mousePressed() {
-	sounds.click.play()
+	sounds.click.play();
 	if (me.gameState == 0) {
 		me.gameState = 1;
 	}
